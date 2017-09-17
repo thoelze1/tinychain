@@ -24,21 +24,33 @@ void client_socket(char *ip) {
 
 	// "socket descriptor"
 	sockfd = socket(PF_INET, SOCK_STREAM, 0);	// starts at 3, increments
+	if(sockfd < 0) {
+		printf("Could not create socket\n");
+		exit(1);
+	}
 
-	memset(recv_buf, '0', sizeof(recv_buf));
+	memset(recv_buf, '\0', sizeof(recv_buf));
 
-	memset(&server_addr, '0', sizeof(server_addr));
+	memset(&server_addr, '\0', sizeof(server_addr));
 	server_addr.sin_family = PF_INET;
 	server_addr.sin_port = htons(5000);
 
 	// converts address in presentation format to network format 
-	inet_pton(PF_INET, ip, &server_addr.sin_addr);
+	if(inet_pton(PF_INET, ip, &server_addr.sin_addr) <= 0) {
+		printf("inet_pton error\n");
+		exit(1);
+	}
 
-	connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+	printf("2\n");
+	if(connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+		printf("Could not call connect\n");
+		exit(1);
+	}
 
 	while((n = read(sockfd, recv_buf, sizeof(recv_buf)-1)) > 0) {
 		recv_buf[n] = 0;
-		fputs(recv_buf, stdout);
+		if(fputs(recv_buf, stdout) == EOF) printf("fputs error\n");
+		printf("Hi\n");
 	}
 }
 

@@ -135,10 +135,11 @@ void build_chain(Block *genesis_block) {
 	}
 }
 
-char *get_node_ports(unsigned int port) {
+char *get_node_ports(unsigned int portserverport, unsigned int port) {
 	// Client socket
 	int sockfd, n;
 	char *recv_buf = (char *)malloc(1024);
+	char *send_buf = (char *)malloc(1024);
 	struct sockaddr_in server_addr;
 	time_t ticks;
 	char *ip = "127.0.0.1";
@@ -154,7 +155,7 @@ char *get_node_ports(unsigned int port) {
 
 	memset(&server_addr, '\0', sizeof(server_addr));
 	server_addr.sin_family = PF_INET;
-	server_addr.sin_port = htons(port);
+	server_addr.sin_port = htons(portserverport);
 
 	// converts address in presentation format to network format
 	if(inet_pton(PF_INET, ip, &server_addr.sin_addr) <= 0) {
@@ -167,10 +168,16 @@ char *get_node_ports(unsigned int port) {
 		exit(1);
 	}
 
+	/*
 	while((n = read(sockfd, recv_buf, 1024-1)) > 0) {
 		recv_buf[n] = 0;
 		if(fputs(recv_buf, stdout) == EOF) printf("fputs error\n");
 	}
+	*/
+	n = read(sockfd, recv_buf, 1024-1);
+
+	snprintf(send_buf, 1024, "%d\n", port);
+    write(sockfd, send_buf, strlen(send_buf));
 
 	shutdown(sockfd, SHUT_RDWR); 
 	close(sockfd); 
@@ -179,8 +186,9 @@ char *get_node_ports(unsigned int port) {
 
 int main(int argc, char **argv) {
 	srand(time(NULL));
+    unsigned int port = 5353 + (rand() % 10);
 	Block *genesis_block = create_genesis_block();
-	build_chain(genesis_block);
-	char *ip = get_node_ports(5353);
+	//build_chain(genesis_block);
+	char *ip = get_node_ports(5353, port);
 	return 0;
 }

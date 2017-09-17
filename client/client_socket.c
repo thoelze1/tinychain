@@ -3,7 +3,7 @@
  * @since 09/16/2017
  *
  * Links:
- * 		https://stackoverflow.com/questions/14409466/simple-hash-functions
+ *   http://www.thegeekstuff.com/2011/12/c-socket-programming/?utm_source=feedburner
  */
 
 #include <time.h>

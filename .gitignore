@@ -1,2 +1,5 @@
 # OS Generated Files
 .DS_Store
+
+# Executables
+tinychain

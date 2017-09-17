@@ -16,6 +16,9 @@
 #include <sys/socket.h>		// bind
 #include <sys/types.h>		// IN_ADDR
 #include <arpa/inet.h>		// host <-> network byte order
+#include <netdb.h>			// gethostbyname
+#include <netinet/tcp.h>	// TCP_NODELAY
+#include <errno.h>
 
 #define TRADE_CAP 10
 
@@ -132,9 +135,110 @@ void build_chain(Block *genesis_block) {
 	}
 }
 
+void get_node_ips() {
+	
+	// Client socket
+	int sockfd, bytes, sent, received, total;
+	char recv_buf[1024], send_buf[1024];
+	struct sockaddr_in server_addr;
+	struct hostent *hp;
+	time_t ticks;
+	char* ptr;
+	char *page = "/~thoelze1/nodes";
+	char *host = "google.com";
+	char *poststr = "???";
+	char *out_response = (char *)malloc(1024*sizeof(char));
+	size_t n;
+    int port = 80;
+	int on;
+	char buffer[1024];
+	
+	memset(recv_buf, '\0', sizeof(recv_buf));
+	memset(send_buf, '\0', sizeof(send_buf));
+
+	printf("%d %d\n", sizeof(hp->h_addr), sizeof(&(server_addr.sin_addr)));
+	hp = gethostbyname(host);
+	printf("%ld\n", hp);
+	memset(&server_addr, '\0', sizeof(server_addr));
+	memcpy((hp->h_addr), &(server_addr.sin_addr), hp->h_length);
+	//bcopy(&(hp->h_addr), &(server_addr.sin_addr), hp->h_length);
+	server_addr.sin_port = htons(80);
+	server_addr.sin_family = PF_INET;
+	
+	// "socket descriptor"
+	sockfd = socket(PF_INET, SOCK_STREAM, 0);// starts at 3, increments
+	if(sockfd < 0) {
+		printf("Could not create socket\n");
+		exit(1);
+	}
+
+	setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(int));
+
+	if(connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+		printf("Could not call connect errno: %s\n", strerror(errno));
+		exit(1);
+	}
+
+	/*
+	write(sockfd, "GET /\r\n", strlen("GET /\r\n"));  
+	//write(sockfd, "GET /~thoelze1/nodes\r\n", strlen("GET /~thoelze1/nodes\r\n"));  
+	bzero(buffer, 1024);
+
+	read(sockfd, buffer, 1024 - 1);
+	
+	while(read(sockfd, buffer, 1024 - 1) != 0){
+			fprintf(stderr, "%s", buffer);
+			bzero(buffer, 1024);
+	}
+	*/
+
+	// shutdown(sockfd, SHUT_RDWR); 
+	// close(sockfd); 
+
+	/*
+	// converts address in presentation format to network format
+	if(inet_pton(PF_INET, ip, &server_addr.sin_addr) <= 0) {
+		printf("inet_pton error\n");
+		exit(1);
+	}
+
+
+	while((n = read(sockfd, recv_buf, sizeof(recv_buf)-1)) > 0) {
+		recv_buf[n] = 0;
+		if(fputs(recv_buf, stdout) == EOF) printf("fputs error\n");
+	}
+	*/
+/*
+	// Form request
+	snprintf(send_buf, 1024, 
+		"GET %s HTTP/1.0\r\n"  // POST or GET, both tested and works. Both HTTP 1.0 HTTP 1.1 works, but sometimes 
+		"Host: %s\r\n",     // but sometimes HTTP 1.0 works better in localhost type
+		page, host);
+
+	printf("%s\n", send_buf);
+
+	// Write the request
+	if (write(sockfd, send_buf, strlen(send_buf))>= 0) {
+		// Read the response
+		while ((n = read(sockfd, recv_buf, 1024)) > 0) {
+			recv_buf[n] = '\0';
+			if(fputs(recv_buf, stdout) == EOF) printf("fputs error\n");
+			// Remove the trailing chars
+			ptr = strstr(recv_buf, "\r\n\r\n");
+			// check len for OutResponse here ?
+			snprintf(out_response, 1024,"%s", ptr);
+		}          
+	}
+
+	printf("%s\n", out_response);
+	return out_response;
+	*/
+}
+
 int main(int argc, char **argv) {
 	srand(time(NULL));
 	Block *genesis_block = create_genesis_block();
 	build_chain(genesis_block);
+	get_node_ips();
 	return 0;
 }

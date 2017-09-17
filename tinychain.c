@@ -135,12 +135,13 @@ void build_chain(Block *genesis_block) {
 	}
 }
 
-char *get_node_ips(char *ip, unsigned int port) {
+char *get_node_ports(unsigned int port) {
 	// Client socket
 	int sockfd, n;
-	char recv_buf[1024];
+	char *recv_buf = (char *)malloc(1024);
 	struct sockaddr_in server_addr;
 	time_t ticks;
+	char *ip = "127.0.0.1";
 
 	// "socket descriptor"
 	sockfd = socket(PF_INET, SOCK_STREAM, 0);	// starts at 3, increments
@@ -149,7 +150,7 @@ char *get_node_ips(char *ip, unsigned int port) {
 		exit(1);
 	}
 
-	memset(recv_buf, '\0', sizeof(recv_buf));
+	memset(recv_buf, '\0', sizeof(1024));
 
 	memset(&server_addr, '\0', sizeof(server_addr));
 	server_addr.sin_family = PF_INET;
@@ -166,19 +167,20 @@ char *get_node_ips(char *ip, unsigned int port) {
 		exit(1);
 	}
 
-	while((n = read(sockfd, recv_buf, sizeof(recv_buf)-1)) > 0) {
+	while((n = read(sockfd, recv_buf, 1024-1)) > 0) {
 		recv_buf[n] = 0;
 		if(fputs(recv_buf, stdout) == EOF) printf("fputs error\n");
 	}
 
 	shutdown(sockfd, SHUT_RDWR); 
 	close(sockfd); 
+	return recv_buf;
 }
 
 int main(int argc, char **argv) {
 	srand(time(NULL));
 	Block *genesis_block = create_genesis_block();
 	build_chain(genesis_block);
-	char *ip = get_node_ips("127.0.0.1");
+	char *ip = get_node_ports(5353);
 	return 0;
 }

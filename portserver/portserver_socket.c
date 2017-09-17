@@ -16,6 +16,7 @@
 #include <arpa/inet.h>		// host <-> network byte order
 
 void server_socket() {
+
 	// Server socket
 	int sockfd, connfd, n;
 	char send_buf[1025];
@@ -39,21 +40,20 @@ void server_socket() {
 	// if connection request arrives and queue is full, the connetion is refused
 	listen(sockfd, 10);
 
-	// extracts first connection request in the queue,
-	// copies socket with a new file descriptor
-	// (blocks until a connection is present)
+	while(1) {
+		// To do: implement signal handling
 
-	connfd = accept(sockfd, (struct sockaddr *)NULL, NULL);
+		// extracts first connection request in the queue,
+		// copies socket with a new file descriptor
+		// (blocks until a connection is present)
+		connfd = accept(sockfd, (struct sockaddr *)NULL, NULL);
 
-	ticks = time(NULL);
-	snprintf(send_buf, sizeof(send_buf), "127.0.0.1:6363\n");
-	write(connfd, send_buf, strlen(send_buf));
+		ticks = time(NULL);
+		snprintf(send_buf, sizeof(send_buf), "6363\n");
+		write(connfd, send_buf, strlen(send_buf));
 
-	shutdown(connfd, SHUT_RDWR);
-	close(connfd);
-	shutdown(sockfd, SHUT_RDWR);
-	close(sockfd);
-
+		close(connfd);
+	}
 }
 
 int main(int argc, char **argv) {

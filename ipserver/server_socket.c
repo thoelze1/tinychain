@@ -30,7 +30,7 @@ void server_socket() {
 	memset(&server_addr, '\0', sizeof(server_addr));
 	server_addr.sin_family = PF_INET;
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	server_addr.sin_port = htons(5000);
+	server_addr.sin_port = htons(5353);
 
 	// request that server_addr be bound to listen_fd, which is likely 3
 	bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
@@ -39,22 +39,21 @@ void server_socket() {
 	// if connection request arrives and queue is full, the connetion is refused
 	listen(sockfd, 10);
 
-	while(1) {
-		// extracts first connection request in the queue,
-		// copies socket with a new file descriptor
-		// (blocks until a connection is present)
+	// extracts first connection request in the queue,
+	// copies socket with a new file descriptor
+	// (blocks until a connection is present)
 
-		printf("Pre-block\n");
-		connfd = accept(sockfd, (struct sockaddr *)NULL, NULL);
-		printf("Post-block\n");
+	connfd = accept(sockfd, (struct sockaddr *)NULL, NULL);
 
-		ticks = time(NULL);
-		snprintf(send_buf, sizeof(send_buf), "%.24s\r\n", ctime(&ticks));
-		write(connfd, send_buf, strlen(send_buf));
+	ticks = time(NULL);
+	snprintf(send_buf, sizeof(send_buf), "127.0.0.1:6363\n");
+	write(connfd, send_buf, strlen(send_buf));
 
-		close(connfd);
-		sleep(1);
-	}
+	shutdown(connfd, SHUT_RDWR);
+	close(connfd);
+	shutdown(sockfd, SHUT_RDWR);
+	close(sockfd);
+
 }
 
 int main(int argc, char **argv) {

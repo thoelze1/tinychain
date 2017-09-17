@@ -18,16 +18,16 @@
 void server_socket() {
 	// Server socket
 	int sockfd, connfd, n;
-	char send_buf[1024];
+	char send_buf[1025];
 	struct sockaddr_in server_addr;
 	time_t ticks;
 
 	// "socket descriptor"
 	sockfd = socket(PF_INET, SOCK_STREAM, 0);	// starts at 3, increments
 
-	memset(send_buf, '0', sizeof(send_buf));
+	memset(send_buf, '\0', sizeof(send_buf));
 
-	memset(&server_addr, '0', sizeof(server_addr));
+	memset(&server_addr, '\0', sizeof(server_addr));
 	server_addr.sin_family = PF_INET;
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	server_addr.sin_port = htons(5000);
@@ -44,7 +44,9 @@ void server_socket() {
 		// copies socket with a new file descriptor
 		// (blocks until a connection is present)
 
+		printf("Pre-block\n");
 		connfd = accept(sockfd, (struct sockaddr *)NULL, NULL);
+		printf("Post-block\n");
 
 		ticks = time(NULL);
 		snprintf(send_buf, sizeof(send_buf), "%.24s\r\n", ctime(&ticks));

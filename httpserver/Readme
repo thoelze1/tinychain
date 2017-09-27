@@ -1,0 +1,9 @@
+AUTHOR
+This server was written entirely by Sean Gallagher.
+
+HOW TO RUN
+make
+./server
+
+DESCRIPTION
+Prints host name and port number that it is listening to. Services http requests (wget, e.g.) in a thread seperate from other requests. 

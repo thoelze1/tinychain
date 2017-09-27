@@ -15,21 +15,23 @@
 #include <sys/types.h>		// IN_ADDR
 #include <arpa/inet.h>		// host <-> network byte order
 
+#define MAX 10
+
 void server_socket() {
 
 	// Keep track of ports of full nodes
-	int node_ports[10];
+	int node_ports[MAX];
 	unsigned int num_ports;
 
 	// Server socket
-	int serversockfd, clientsockfd, n;
+	int sockfd, newsockfd, n;
 	char send_buf[1024], recv_buf[1024];
 	struct sockaddr_in server_addr;
 
 	// "socket descriptor"
-	serversockfd = socket(PF_INET, SOCK_STREAM, 0);	// starts at 3, increments
+	sockfd = socket(PF_INET, SOCK_STREAM, 0);	// starts at 3, increments
 
-	memset(node_ports, -1, sizeof(node_ports));
+	memset(node_ports, 0, sizeof(node_ports));
 	memset(send_buf, '\0', sizeof(send_buf));
 	memset(recv_buf, '\0', sizeof(recv_buf));
 
@@ -39,11 +41,11 @@ void server_socket() {
 	server_addr.sin_port = htons(5353);
 
 	// request that server_addr be bound to listen_fd, which is likely 3
-	bind(serversockfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+	bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
 
 	// allow incoming connections, with 10 as queue limit
 	// if connection request arrives and queue is full, the connetion is refused
-	listen(serversockfd, 10);
+	listen(sockfd, 10);
 
 	num_ports = 0;
 	while(1) {
@@ -52,10 +54,10 @@ void server_socket() {
 		// extracts first connection request in the queue,
 		// copies socket with a new file descriptor
 		// (blocks until a connection is present)
-		clientsockfd = accept(serversockfd, (struct sockaddr *)NULL, NULL);
+		newsockfd = accept(sockfd, (struct sockaddr *)NULL, NULL);
 
 		snprintf(send_buf, sizeof(send_buf), "%d\n", node_ports[0]);
-		write(clientsockfd, send_buf, strlen(send_buf));
+		write(newsockfd, send_buf, strlen(send_buf));
 
 		/*
 		while((n = read(clientsockfd, recv_buf, 1024-1)) > 0) {
@@ -66,10 +68,10 @@ void server_socket() {
 		n = read(clientsockfd, recv_buf, 1024-1);
 
 		printf("New port: %d\n", atoi(recv_buf));
-		node_ports[num_ports] = atoi(recv_buf);
+		node_ports[num_ports%MAX] = atoi(recv_buf);
 		num_ports++;
 
-		close(clientsockfd);
+		close(newsockfd);
 	}
 }
 

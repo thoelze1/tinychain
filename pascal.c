@@ -1,3 +1,13 @@
+/**
+ * @author Tanner Hoelzel
+ * @since 09/27/2017
+ *
+ * Prints first n rows of Pascal's triangle in θ(n choose 2).
+ *
+ * Computing number of entries is θ(n).
+ * Computing the n choose 2 entries is θ(n choose 2).
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 

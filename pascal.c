@@ -1,6 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+int rows_to_entries(int rows) {
+
+	int num_ents, curr_row;
+
+	for(num_ents = 0, curr_row = rows; curr_row > 0; curr_row--) {
+		num_ents += curr_row;
+	}
+
+	return num_ents;
+
+}
+
 int main(int argc, char **argv) {
 
 	int row_n, num_vals, val_i, row, row_i, par1, par2, *pascal;
@@ -8,7 +20,7 @@ int main(int argc, char **argv) {
 	row_n = atoi(argv[1]);
 
 	// dynamically allocate pascal to (n+1) choose 2
-	num_vals = 55;
+	num_vals = rows_to_entries(row_n);
 	pascal = (int *)malloc(sizeof(int)*num_vals);
 
 	// fill and print row 1	

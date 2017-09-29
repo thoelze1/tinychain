@@ -6,6 +6,8 @@
  *
  * Computing number of entries is θ(n).
  * Computing the n choose 2 entries is θ(n choose 2).
+ * 
+ * Next I'm going to codegolf this in python.
  */
 
 #include <stdio.h>
